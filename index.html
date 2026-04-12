@@ -14,6 +14,13 @@
     .tab-active { border-bottom: 3px solid #00ffc8; color: #00ffc8; }
     .modal { animation: modalPop 0.3s ease; }
     @keyframes modalPop { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+    #chat-window {
+      scroll-behavior: smooth;
+    }
+    /* Optional: Neon Scrollbar */
+    #chat-window::-webkit-scrollbar { width: 4px; }
+    #chat-window::-webkit-scrollbar-track { background: transparent; }
+    #chat-window::-webkit-scrollbar-thumb { background: #00ffc8; border-radius: 10px; }
   </style>
 </head>
 <body class="bg-[#05050f] text-cyan-300 overflow-hidden h-screen flex flex-col">
@@ -118,17 +125,19 @@
       </div>
 
       <!-- TAB 2: TALK SCREEN -->
-      <div id="screen-2" class="flex-1 flex flex-col hidden">
-        <div class="p-6 border-b border-cyan-500">
-          <h2 class="text-2xl font-bold">Talk to VAYUDOOT</h2>
-          <p class="text-xs text-cyan-400">Cognitive Companion • Always listening</p>
+      <div id="screen-2" class="flex-1 flex flex-col hidden h-full overflow-hidden">
+        <div class="p-6 border-b border-cyan-500 flex-shrink-0">
+          <h2 class="text-2xl font-bold uppercase tracking-tighter">VAYUDOOT COGNITIVE INTERFACE</h2>
+          <p class="text-xs text-cyan-400">Direct Neural Link • Active</p>
         </div>
-        <div id="chat-window" class="flex-1 p-6 overflow-y-auto space-y-4 font-light"></div>
-        <div class="p-4 border-t border-cyan-500">
+        
+        <div id="chat-window" class="flex-1 p-6 overflow-y-auto space-y-4 font-light custom-scrollbar"></div>
+        
+        <div class="p-4 border-t border-cyan-500 flex-shrink-0 bg-black/50">
           <div class="flex gap-2">
-            <input id="chat-input" type="text" placeholder="Type message or command..." 
-                   class="flex-1 bg-black/60 border border-cyan-400 rounded-3xl px-6 py-4 text-sm focus:outline-none">
-            <button onclick="sendMessage()" class="bg-cyan-500 hover:bg-cyan-400 text-black w-12 h-12 rounded-3xl flex items-center justify-center">
+            <input id="chat-input" type="text" placeholder="Transmit command..." 
+                  class="flex-1 bg-black/60 border border-cyan-400 rounded-3xl px-6 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-cyan-400">
+            <button onclick="sendMessage()" class="bg-cyan-500 hover:bg-cyan-400 text-black w-12 h-12 rounded-3xl flex items-center justify-center transition-transform active:scale-95">
               <i class="fas fa-paper-plane"></i>
             </button>
           </div>
@@ -191,26 +200,32 @@
 
         <!-- Crew Status -->
         <div>
-          <h3 class="text-cyan-400 mb-4">Crew Status (Live)</h3>
-          <div class="space-y-4">
-            <div class="flex justify-between items-center">
-              <span>Capt. Vikram Singh</span>
-              <select onchange="updateCrewStatus(0, this.value)" class="bg-black border border-cyan-400 rounded-2xl px-4 py-2 text-sm">
-                <option value="OK">OK</option>
-                <option value="Not OK">Not OK</option>
-                <option value="Serious">Serious</option>
-                <option value="Mood Not OK">Mood Not OK</option>
+          <h3 class="text-cyan-400 mb-4 uppercase text-xs tracking-widest">Crew Health Override</h3>
+          <div class="space-y-4 bg-black/40 p-4 rounded-2xl border border-white/5">
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] text-gray-500">SELECT MEMBER</label>
+              <select id="sc-crew-select" class="bg-black border border-cyan-400/50 rounded-xl px-3 py-2 text-sm text-cyan-50 focus:outline-none">
+                <option value="0">Capt. Vikram Singh</option>
+                <option value="1">Dr. Meera Patel</option>
+                <option value="2">Lt. Rohan Desai</option>
+                <option value="3">Dr. Anika Rao</option>
               </select>
             </div>
-            <div class="flex justify-between items-center">
-              <span>Dr. Meera Patel</span>
-              <select onchange="updateCrewStatus(1, this.value)" class="bg-black border border-cyan-400 rounded-2xl px-4 py-2 text-sm">
-                <option value="OK">OK</option>
-                <option value="Not OK">Not OK</option>
-                <option value="Serious">Serious</option>
-                <option value="Mood Not OK">Mood Not OK</option>
+
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] text-gray-500">SET STATUS</label>
+              <select id="sc-crew-status" class="bg-black border border-cyan-400/50 rounded-xl px-3 py-2 text-sm text-cyan-50 focus:outline-none">
+                <option value="Nominal">Nominal</option>
+                <option value="Stressed">Stressed</option>
+                <option value="Injured">Injured</option>
+                <option value="Critical">Critical</option>
+                <option value="Unconscious">Unconscious</option>
               </select>
             </div>
+
+            <button onclick="applyManualCrewUpdate()" class="w-full bg-cyan-900/40 border border-cyan-400 text-cyan-400 py-2 rounded-xl text-xs font-bold hover:bg-cyan-400 hover:text-black transition-all">
+              UPDATE VITALS
+            </button>
           </div>
         </div>
       </div>
@@ -342,6 +357,60 @@
 
     let temp = 23.4;
     function updateMainMonitoring() {
+      // 1. Drift back to 22.5°C if everything is OK
+      if (!systemStatus.includes("Extreme")) {
+        temp += (22.5 - temp) * 0.05; 
+      }
+      // If temperature exceeds 32°C, stress the crew regardless of system status
+      if (temp > 32) {
+        crewMembers.forEach(m => {
+          m.status = "HEAT STRESS";
+          m.hr += 1; // Creeping heart rate
+        });
+        renderCrewList();
+      }
+
+      // 2. Standard Jitter
+      temp += (Math.random() * 0.2 - 0.1);
+      
+      // 3. Update Main Panel
+      document.getElementById('temp-value').textContent = temp.toFixed(1) + '°C';
+      document.getElementById('temp-bar').style.width = (temp * 2.8) + '%';
+
+      // 4. Update SC Slider LIVE (only if the modal is actually visible)
+      const modal = document.getElementById('sim-modal');
+      if (!modal.classList.contains('hidden')) {
+        document.getElementById('temp-slider').value = temp;
+        document.getElementById('live-temp-display').textContent = temp.toFixed(1) + '°C';
+      }
+
+      // 1. ENVIRONMENTAL CHECK
+      const isTempSafe = temp <= 32;
+      const noSystemFailures = !systemStatus.includes("Extreme") && !systemStatus.includes("Little");
+
+      if (temp > 32) {
+        // TRIGGER HEAT STRESS
+        crewMembers.forEach(m => {
+          m.status = "HEAT STRESS";
+          m.hr = Math.min(110, m.hr + 0.5); // HR slowly climbs in heat
+          m.notes = "Environmental Warning: Cabin temperature exceeding safety limits.";
+        });
+        renderCrewList();
+      } 
+      else if (isTempSafe && noSystemFailures) {
+        // RECOVERY: Only reset if temp is safe AND systems are OK
+        // We check the first member's status to avoid unecessary re-renders
+        if (crewMembers[0].status === "HEAT STRESS") {
+          crewMembers.forEach(m => {
+            m.status = "Nominal";
+            m.hr = Math.max(70, m.hr - 1); // HR slowly recovers
+            m.notes = "Temperature stabilized. Vitals returning to baseline.";
+          });
+          addChatMessage("🌡️ Temperature stabilized. Crew heat stress alert cleared.");
+          renderCrewList();
+        }
+      }
+          
       temp = Math.max(18, Math.min(32, temp + (Math.random()*0.6 - 0.3)));
       document.getElementById('temp-value').textContent = temp.toFixed(1) + '°C';
       document.getElementById('temp-bar').style.width = (temp * 2.8) + '%';
@@ -353,39 +422,84 @@
         <div class="flex justify-between bg-black/40 p-4 rounded-2xl"><span>Life Support Software</span><span id="record-life" class="text-green-400">OK</span></div>
         <div class="flex justify-between bg-black/40 p-4 rounded-2xl"><span>Power Supply Unit</span><span id="record-power" class="text-green-400">OK</span></div>
       `;
+      const failureDisplay = document.getElementById('failure-value');
+      
+      if (systemStatus.includes("Extreme")) {
+        failureDisplay.textContent = "CRITICAL";
+        failureDisplay.className = "text-3xl font-bold text-red-500 animate-pulse";
+      } else if (systemStatus.includes("Little")) {
+        failureDisplay.textContent = "UNSTABLE";
+        failureDisplay.className = "text-3xl font-bold text-orange-400";
+      } else {
+        failureDisplay.textContent = "NOMINAL";
+        failureDisplay.className = "text-3xl font-bold text-green-400";
+      }
     }
 
     // ==================== SIMULATION PANEL FUNCTIONS ====================
     
-    
+    // Add this function inside your <script> tag
+    function applyAllChanges() {
+      const currentTemp = parseFloat(document.getElementById('temp-slider').value);
+      
+      // 1. Sync Temperature
+      if (Math.abs(currentTemp - lastTemp) > 0.5) {
+        applyTemperatureChange(currentTemp);
+        lastTemp = currentTemp;
+      }
 
+      // 2. Sync System Statuses
+      systemStatus[0] = document.getElementById('sys-thruster').value;
+      systemStatus[1] = document.getElementById('sys-life').value;
+      systemStatus[2] = document.getElementById('sys-power').value;
+      
+      // 3. Update the UI logs immediately
+      updateLastRecords();
+      
+      // 4. Update Mission Health visual in the modal
+      const healthBar = document.getElementById('mission-health-bar');
+      const healthText = document.getElementById('mission-health-text');
+      healthBar.style.width = missionHealth + '%';
+      healthText.textContent = missionHealth + '%';
+      
+      // 5. Provide console feedback and close
+      console.log("Mission Profile Updated. Health:", missionHealth + "%");
+      closeSimulationPanel();
+    }
     function applyTemperatureChange(val) {
+      // Show the balancing overlay
       const overlay = document.createElement('div');
-      overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:10000; display:flex; align-items:center; justify-content:center; flex-direction:column; color:white; font-size:28px; font-weight:bold;';
-      overlay.innerHTML = `
-        <div class="text-4xl mb-8">⚙️ BALANCING TEMPERATURE</div>
-        <div id="balance-msg" class="text-2xl"></div>
-      `;
+      overlay.className = "fixed inset-0 bg-black/80 backdrop-blur-xl z-[10005] flex items-center justify-center flex-col text-cyan-400";
+      overlay.innerHTML = `<div class="text-2xl font-bold mb-4 animate-bounce">ADJUSTING THERMAL GRID</div><div class="w-64 h-1 bg-gray-800 rounded-full overflow-hidden"><div class="h-full bg-cyan-400 animate-[progress_2s_ease-in-out]"></div></div>`;
       document.body.appendChild(overlay);
 
       setTimeout(() => {
-        const msg = document.getElementById('balance-msg');
-        if (val > 28) {
-          msg.innerHTML = '🌬️ ACTIVATING COOLING SYSTEMS<br><span class="text-sm">Temperature decreasing...</span>';
-          temp = Math.max(18, val - 7);
-        } else if (val < 18) {
-          msg.innerHTML = '🔥 OPENING HEATERS<br><span class="text-sm">Temperature increasing...</span>';
-          temp = Math.min(32, val + 7);
-        } else {
-          msg.textContent = '✅ TEMPERATURE STABILIZED';
-          temp = val;
-        }
-        
-        document.getElementById('temp-value').textContent = temp.toFixed(1) + '°C';
-        document.getElementById('temp-bar').style.width = (temp * 2.8) + '%';
-        
-        setTimeout(() => overlay.remove(), 2200);
-      }, 1600);
+        temp = parseFloat(val); // Update the global variable
+        overlay.remove();
+        addChatMessage(`🌡️ Thermal core stabilized at ${temp.toFixed(1)}°C.`);
+      }, 2000);
+    }
+
+    function syncCrewWithSystems() {
+      const isExtreme = systemStatus.includes("Extreme");
+      const isLittle = systemStatus.includes("Little");
+      const isHeatStress = temp > 32;
+
+      // ONLY auto-update crew if there is an actual problem
+      // Otherwise, leave manual changes alone
+      if (isExtreme || isLittle || isHeatStress) {
+        crewMembers.forEach(member => {
+          if (isExtreme) {
+            member.status = "CRITICAL";
+            member.hr = 120;
+          } else if (isHeatStress) {
+            member.status = "HEAT STRESS";
+          } else if (isLittle) {
+            member.status = "STRESSED";
+          }
+        });
+        renderCrewList();
+      }
     }
 
     let systemStatus = ["OK", "OK", "OK"];   // 0=Thruster, 1=Life Support, 2=Power
@@ -403,13 +517,18 @@
       document.getElementById('sim-modal').classList.add('hidden');
     }
     function openSimulationPanel() {
-      // Sync all controls with current real state
+      // 1. Sync all systems
       document.getElementById('sys-thruster').value = systemStatus[0];
       document.getElementById('sys-life').value = systemStatus[1];
       document.getElementById('sys-power').value = systemStatus[2];
       
-      document.getElementById('temp-slider').value = lastTemp;
-      document.getElementById('live-temp-display').textContent = lastTemp.toFixed(1) + '°C';
+      // 2. FORCE the slider to match the CURRENT "Panel" temperature
+      // This prevents it from staying at the "last slid" position
+      const scSlider = document.getElementById('temp-slider');
+      const scDisplay = document.getElementById('live-temp-display');
+      
+      scSlider.value = temp; 
+      scDisplay.textContent = temp.toFixed(1) + '°C';
 
       document.getElementById('sim-modal').classList.remove('hidden');
     }
@@ -424,32 +543,133 @@
       document.getElementById('live-temp-display').textContent = val.toFixed(1) + '°C';
     }
 
+    let activeProtocol = null;
+    let protocolStep = 0;
+
+    const EMERGENCY_PROTOCOLS = {
+      "FIRE": {
+        name: "Protocol 7: Oxygen Venting",
+        steps: ["disable life support", "seal section 4", "re-pressurize"],
+        trigger: "Extreme Fire Risk detected"
+      },
+      "POWER": {
+        name: "Protocol 12: Grid Realignment",
+        steps: ["divert thruster power", "reboot core", "restore main grid"],
+        trigger: "Total Power Failure"
+      }
+    };
+
+    function applyManualCrewUpdate() {
+      const memberIndex = document.getElementById('sc-crew-select').value;
+      const newStatus = document.getElementById('sc-crew-status').value;
+      
+      const member = crewMembers[memberIndex];
+      member.status = newStatus;
+
+      // Set realistic Heart Rates based on the manual status
+      if (newStatus === "Nominal") {
+        member.hr = 72;
+        member.notes = "Vitals manual override: Stable.";
+      } else if (newStatus === "Stressed") {
+        member.hr = 98;
+        member.notes = "Psychological stress reported by Mission Control.";
+      } else if (newStatus === "Critical" || newStatus === "Injured") {
+        member.hr = 125;
+        member.notes = "IMMEDIATE MEDICAL INTERVENTION REQUIRED.";
+      } else if (newStatus === "Unconscious") {
+        member.hr = 45;
+        member.notes = "Non-responsive. VAYUDOOT monitoring life support.";
+      }
+      // Add this inside the functions where status changes
+      if (newStatus !== "Nominal") {
+        const suggestion = MEDICAL_PROTOCOLS[newStatus].text;
+        setTimeout(() => {
+          addChatMessage(`⚠️ ALERT: ${member.name} is ${newStatus}. ${suggestion}`);
+        }, 1000);
+      }
+
+      // 1. Refresh the Right Panel List
+      renderCrewList();
+
+      // 2. If the Detail View is open for this specific person, update it too
+      if (currentCrew && currentCrew.name === member.name) {
+        showCrewDetail(member);
+      }
+
+      // 3. Visual Feedback
+      showAlert(`🧑‍🚀 ${member.name} status updated to ${newStatus}`);
+      addChatMessage(`📡 Bio-telemetry update: ${member.name} is now ${newStatus}.`);
+    }
+
+    function triggerEmergency(type) {
+      activeProtocol = EMERGENCY_PROTOCOLS[type] || { 
+        name: "General Emergency", 
+        steps: ["check systems"], 
+        trigger: "Unknown malfunction" 
+      };
+      protocolStep = 0;
+      
+      // Show the Red Alert Visuals
+      document.getElementById('emergency-overlay').classList.remove('hidden');
+      
+      // Updated AI Message with "Human Support Needed"
+      addChatMessage(`🚨 ⚠️ CRITICAL: ${activeProtocol.trigger}. ${activeProtocol.name} initiated.`);
+      addChatMessage(`VAYUDOOT Error 404: Autonomy insufficient. **Human support urgently needed.**`);
+      addChatMessage(`Crew, please enter the override command: "${activeProtocol.steps[0]}"`);
+    }
+
     function setSystemStatus(index, status) {
       systemStatus[index] = status;
-      
-      const ids = ['record-thruster', 'record-life', 'record-power'];
-      const el = document.getElementById(ids[index]);
+      updateLastRecords(); // Update Main Panel immediately
+      // 1. Sync the crew stats immediately
+      syncCrewWithSystems();
+
+      const systemIds = ['sys-thruster', 'sys-life', 'sys-power'];
+      const dropdown = document.getElementById(systemIds[index]);
 
       if (status === 'Little') {
-        showAlert("⚠️ SYSTEM DAMAGED - Trying to fix...", () => {
+        // Show yellow alert and simulate a repair
+        showAlert("⚠️ MINOR MALFUNCTION - VAYUDOOT attempting auto-repair...", () => {
           systemStatus[index] = "OK";
-          el.className = 'text-green-400';
-          el.textContent = 'FIXED';
+          dropdown.value = "OK"; // Sync the SC dropdown back to OK
           updateLastRecords();
+          addChatMessage(`🔧 VAYUDOOT: Fixed minor issue in ${systemIds[index].split('-')[1]}.`);
         });
       } 
       else if (status === 'Extreme') {
-        showAlert("🚨 EXTREME DAMAGE - Unable to fix. Support needed.", null, true);
-      } 
-      else {
-        el.className = 'text-green-400';
-        el.textContent = 'OK';
+        const protocolType = (index === 1) ? "FIRE" : (index === 2) ? "POWER" : "THRUSTER";
+        triggerEmergency(protocolType);
       }
-      
-      updateLastRecords();
+      // 3. The Reset: If user sets it back to OK, clear the emergency
+      else if (status === 'OK') {
+        // Check if ANY other system is still 'Extreme'
+        const stillDangerous = systemStatus.includes("Extreme");
+        
+        if (!stillDangerous) {
+          // Hide the red overlay
+          document.getElementById('emergency-overlay').classList.add('hidden');
+          activeProtocol = null;
+          addChatMessage("✅ System normalized. Emergency protocols deactivated. VAYUDOOT resuming standard monitoring.");
+        }
+      }
     }
 
     function updateLastRecords() {
+      const labels = ["Thruster Valves", "Life Support Software", "Power Supply Unit"];
+      const ids = ["record-thruster", "record-life", "record-power"];
+      
+      let html = "";
+      systemStatus.forEach((status, i) => {
+        let colorClass = "text-green-400";
+        if (status === "Little") colorClass = "text-yellow-400";
+        if (status === "Extreme") colorClass = "text-red-500 animate-pulse";
+        
+        html += `
+          <div class="flex justify-between bg-black/40 p-4 rounded-2xl border border-white/5">
+            <span class="text-gray-400 uppercase text-xs tracking-widest">${labels[i]}</span>
+            <span class="${colorClass} font-mono font-bold">${status}</span>
+          </div>`;
+      });
       const recordsHTML = `
         <div class="flex justify-between bg-black/40 p-4 rounded-2xl">
           <span>Thruster Valves</span>
@@ -499,6 +719,14 @@
     }
 
     // ==================== CREW, CHAT, TABS (unchanged from your original) ====================
+    const MEDICAL_PROTOCOLS = {
+      "Nominal": { action: "None", text: "Vitals stable. No intervention required." },
+      "Stressed": { action: "Administer Mild Sedative", text: "Elevated cortisol levels. Suggesting sedative administration." },
+      "Heat Stress": { action: "Cooling Fluid Injection", text: "Body temperature critical. Activating internal cooling loop." },
+      "Injured": { action: "Apply Bio-Gel", text: "Tissue damage detected. Suggesting localized Bio-Gel application." },
+      "Critical": { action: "Administer Adrenaline", text: "Systemic failure imminent. Adrenaline shot required." },
+      "Unconscious": { action: "Increase Oxygen Flow", text: "Hypoxia detected. Diverting O2 to crew quarters." }
+    };
     const crewMembers = [
       { id: 1, name: "Capt. Vikram Singh", role: "Commander", photo: "https://picsum.photos/id/1011/300/300", status: "Nominal", hr: 72, notes: "Calm and focused" },
       { id: 2, name: "Dr. Meera Patel", role: "Medical Officer", photo: "https://picsum.photos/id/64/300/300", status: "Nominal", hr: 81, notes: "Slight fatigue detected" },
@@ -512,17 +740,22 @@
       
       crewMembers.forEach(member => {
         const div = document.createElement('div');
-        div.className = "flex items-center gap-4 bg-black/60 hover:bg-cyan-900/30 p-4 rounded-3xl cursor-pointer border border-transparent hover:border-cyan-400";
+        div.className = "flex items-center gap-4 bg-black/60 hover:bg-cyan-900/30 p-4 rounded-3xl cursor-pointer border border-transparent hover:border-cyan-400 transition-all";
         
+        // Dynamic Color Logic
+        let statusColor = "text-green-400";
+        if (member.status === "STRESSED") statusColor = "text-yellow-400";
+        if (member.status === "CRITICAL" || member.status === "HEAT STRESS") statusColor = "text-red-500 animate-pulse";
+
         div.innerHTML = `
-          <img src="${member.photo}" class="w-12 h-12 rounded-2xl object-cover">
+          <img src="${member.photo}" class="w-12 h-12 rounded-2xl object-cover border border-cyan-500/30">
           <div class="flex-1">
-            <div class="font-semibold">${member.name}</div>
+            <div class="font-semibold text-white">${member.name}</div>
             <div class="text-xs text-gray-400">${member.role}</div>
           </div>
           <div class="text-right">
-            <div class="text-green-400 text-sm">Health: ${member.status}</div>
-            <div class="text-xs">${member.hr} bpm</div>
+            <div class="${statusColor} text-sm font-bold">${member.status}</div>
+            <div class="text-xs font-mono">${member.hr} BPM</div>
           </div>
         `;
         
@@ -532,36 +765,122 @@
     }
 
     let currentCrew = null;
-    function showCrewDetail(member) { /* same as original */ 
+    function showCrewDetail(member) {
       currentCrew = member;
+      const protocol = MEDICAL_PROTOCOLS[member.status] || { action: "Check Vitals", text: "Status unknown." };
+
       document.getElementById('crew-detail').classList.remove('hidden');
       document.getElementById('detail-name').textContent = member.name;
       document.getElementById('detail-photo').src = member.photo;
-      document.getElementById('detail-info').innerHTML = `<div><span class="font-medium">Role:</span> ${member.role}</div><div><span class="font-medium">Heart Rate:</span> <span class="font-mono">${member.hr} bpm</span></div><div><span class="font-medium">Psychological Status:</span> ${member.notes}</div>`;
+
+      document.getElementById('detail-info').innerHTML = `
+        <div class="space-y-3">
+          <div><span class="text-gray-400">Role:</span> ${member.role}</div>
+          <div><span class="text-gray-400">Heart Rate:</span> <span class="font-mono text-cyan-400">${member.hr} BPM</span></div>
+          <div class="p-3 bg-cyan-900/20 border border-cyan-400/30 rounded-xl">
+            <div class="text-[10px] text-cyan-400 uppercase font-bold mb-1">VAYUDOOT Recommendation</div>
+            <div class="text-sm italic">"${protocol.text}"</div>
+          </div>
+        </div>
+      `;
+
+      // Update the button logic for treatment
+      const actionBtn = document.querySelector('#crew-detail div[onclick="updateCrewData()"]');
+      if (protocol.action !== "None") {
+        actionBtn.textContent = `EXECUTE: ${protocol.action}`;
+        actionBtn.onclick = () => administerTreatment(member, protocol.action);
+        actionBtn.classList.remove('hidden');
+      } else {
+        actionBtn.classList.add('hidden');
+      }
+    }
+    function administerTreatment(member, action) {
+      addChatMessage(`💉 VAYUDOOT: Administering ${action} to ${member.name}...`);
+      
+      // Show a "Processing" state
+      const actionBtn = document.querySelector('#crew-detail div[onclick^="administerTreatment"]');
+      actionBtn.textContent = "TREATMENT IN PROGRESS...";
+      actionBtn.classList.add('animate-pulse', 'pointer-events-none');
+
+      setTimeout(() => {
+        // 1. Update the Data
+        member.status = "Nominal";
+        member.hr = 72;
+        member.notes = `Recovered after ${action}.`;
+
+        // 2. Refresh UI
+        renderCrewList();
+        showCrewDetail(member);
+        
+        // 3. AI Feedback
+        addChatMessage(`✅ Success. ${member.name}'s vitals have stabilized.`);
+        showAlert(`✨ ${member.name} is now NOMINAL`);
+        
+        // 4. Reset Button
+        actionBtn.classList.remove('animate-pulse', 'pointer-events-none');
+      }, 3000); // 3-second medical delay
     }
     function hideCrewDetail() { document.getElementById('crew-detail').classList.add('hidden'); currentCrew = null; }
     function updateCrewData() { if(!currentCrew) return; currentCrew.hr = Math.floor(65 + Math.random()*25); currentCrew.notes = "Data refreshed • VAYUDOOT confirmed stable"; showCrewDetail(currentCrew); }
 
-    function addChatMessage(text, isUser = false) { /* same as original */ 
+    function addChatMessage(text, isUser = false) {
       const chat = document.getElementById('chat-window');
       const msg = document.createElement('div');
-      msg.className = isUser ? "text-right" : "flex gap-3 max-w-[80%]";
-      if(isUser) msg.innerHTML = `<div class="inline-block bg-cyan-500 text-black px-5 py-3 rounded-3xl">${text}</div>`;
-      else msg.innerHTML = `<i class="fas fa-robot mt-1 text-cyan-400"></i><div class="bg-black/60 px-5 py-3 rounded-3xl">${text}</div>`;
-      chat.appendChild(msg); chat.scrollTop = chat.scrollHeight;
+      msg.className = isUser ? "flex justify-end w-full" : "flex gap-3 max-w-[85%]";
+      
+      if(isUser) {
+        msg.innerHTML = `<div class="bg-cyan-500 text-black px-5 py-3 rounded-2xl rounded-tr-none shadow-lg">${text}</div>`;
+      } else {
+        msg.innerHTML = `
+          <div class="flex-shrink-0 w-8 h-8 bg-cyan-900/50 rounded-full flex items-center justify-center border border-cyan-400">
+            <i class="fas fa-robot text-xs text-cyan-400"></i>
+          </div>
+          <div class="bg-white/5 border border-white/10 px-5 py-3 rounded-2xl rounded-tl-none text-cyan-50">${text}</div>`;
+      }
+      
+      chat.appendChild(msg);
+      
+      // Smooth scroll to bottom
+      chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
     }
 
-    function sendMessage() { /* same as original */ 
+    function sendMessage() {
       const input = document.getElementById('chat-input');
       const text = input.value.trim().toLowerCase();
       if(!text) return;
+
       addChatMessage(input.value, true);
       input.value = '';
+
       setTimeout(() => {
-        if(text.includes("update") || text.includes("check")) addChatMessage("✅ Main system updated successfully!");
-        else if(text.includes("how") || text.includes("status")) addChatMessage("I am operating at 99.8% efficiency.");
-        else addChatMessage("Understood. Logged.");
-      }, 900);
+        // Check if we are in an Emergency Protocol
+        if (activeProtocol) {
+          if (text === activeProtocol.steps[protocolStep]) {
+            protocolStep++;
+            if (protocolStep < activeProtocol.steps.length) {
+              addChatMessage(`✅ Confirmed. Step ${protocolStep} complete. Now: "${activeProtocol.steps[protocolStep]}"`);
+            } else {
+              // Protocol Finished
+              addChatMessage(`✨ ${activeProtocol.name} COMPLETE. Systems stabilizing.`);
+              document.getElementById('emergency-overlay').classList.add('hidden');
+              activeProtocol = null;
+              // Reset systems to OK
+              systemStatus = ["OK", "OK", "OK"];
+              updateLastRecords();
+            }
+          } else {
+            addChatMessage(`❌ INVALID INPUT. In ${activeProtocol.name}, I require: "${activeProtocol.steps[protocolStep]}"`);
+          }
+          return;
+        }
+
+        // Default Responses
+        if(text.includes("status")) {
+            addChatMessage("Monitoring Gaganyaan-3. Efficiency at 99.8%. Systems Nominal.");
+        } else {
+            addChatMessage("Instruction logged in Mission Chronology.");
+        }
+      }, 800);
     }
 
     function switchTab(tabIndex) {
@@ -596,5 +915,11 @@
 
     window.onload = init;
   </script>
+  <div id="emergency-overlay" class="hidden fixed inset-0 bg-red-900/20 backdrop-blur-sm z-[10002] pointer-events-none border-[20px] border-red-600/50 animate-pulse">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+      <h2 class="text-6xl font-black text-red-500 drop-shadow-2xl">CRITICAL SYSTEM FAILURE</h2>
+      <p class="text-xl text-white mt-4 font-mono tracking-tighter">VAYUDOOT AI: EMERGENCY PROTOCOL ACTIVE</p>
+    </div>
+  </div>
 </body>
 </html>
