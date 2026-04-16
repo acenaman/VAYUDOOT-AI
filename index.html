@@ -17,40 +17,178 @@
     #chat-window {
       scroll-behavior: smooth;
     }
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.2rem;
+        line-height: 1.3;
+      }
+      
+      h2 {
+        font-size: 1.1rem;
+        line-height: 1.3;
+      }
+
+      h3 {
+        font-size: 1rem;
+        line-height: 1.3;
+      }
+
+      .glow {
+        text-shadow: 0 0 10px cyan;
+      }
+
+      p, span, div {
+        font-size: 0.875rem;
+        line-height: 1.4;
+      }
+
+      .text-xs {
+        font-size: 0.75rem;
+      }
+
+      .text-sm {
+        font-size: 0.875rem;
+      }
+
+      .text-lg {
+        font-size: 1.125rem;
+      }
+
+      .text-xl {
+        font-size: 1.25rem;
+      }
+
+      .text-2xl {
+        font-size: 1.5rem;
+      }
+
+      .text-3xl {
+        font-size: 1.875rem;
+      }
+    }
+
+    @media (max-width: 1440px) {
+      h1 {
+        font-size: 1.5rem;
+        line-height: 1.3;
+      }
+      
+      h2 {
+        font-size: 1.3rem;
+        line-height: 1.3;
+      }
+
+      h3 {
+        font-size: 1.1rem;
+        line-height: 1.3;
+      }
+
+      .glow {
+        text-shadow: 0 0 15px cyan;
+      }
+
+      p, span, div {
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .text-xs {
+        font-size: 0.8rem;
+      }
+
+      .text-sm {
+        font-size: 0.9rem;
+      }
+
+      .text-lg {
+        font-size: 1.2rem;
+      }
+
+      .text-xl {
+        font-size: 1.35rem;
+      }
+
+      .text-2xl {
+        font-size: 1.7rem;
+      }
+
+      .text-3xl {
+        font-size: 0.875rem;
+      }
+
+      /* Specific fixes for mission control sections */
+      .glow {
+        font-size: 1.2rem !important;
+      }
+
+      .absolute.top-4 h3 {
+        font-size: 0.9rem !important;
+      }
+
+      .absolute.top-4 .text-xs {
+        font-size: 0.7rem !important;
+      }
+
+      .absolute.top-4 .text-sm {
+        font-size: 0.8rem !important;
+      }
+
+      .absolute.top-4 span {
+        font-size: 0.7rem !important;
+      }
+
+      #failure-value {
+        font-size: 1.5rem !important;
+      }
+    }
+    @media (max-width: 1025px) {
+      #failure-value {
+        font-size: 1.2rem !important;
+      }
+    }
     /* Optional: Neon Scrollbar */
     #chat-window::-webkit-scrollbar { width: 4px; }
     #chat-window::-webkit-scrollbar-track { background: transparent; }
     #chat-window::-webkit-scrollbar-thumb { background: #00ffc8; border-radius: 10px; }
   </style>
 </head>
-<body class="bg-[#05050f] text-cyan-300 overflow-hidden h-screen flex flex-col">
-
+<body class="bg-[#05050f] text-cyan-300 h-screen overflow-hidden flex flex-col">
   <!-- HEADER -->
+  <button onclick="toggleMenu()" class="lg:hidden text-cyan-400 text-xl mr-3">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div id="mobile-menu" class="hidden fixed top-14 left-0 w-full bg-black border-b border-cyan-500 z-50">
+    <button onclick="switchMobileTab(0)" class="block w-full text-left px-6 py-4 border-b border-cyan-800">🚀 Monitoring</button>
+    <button onclick="switchMobileTab(1)" class="block w-full text-left px-6 py-4 border-b border-cyan-800">👨‍🚀 Crew</button>
+    <button onclick="switchMobileTab(2)" class="block w-full text-left px-6 py-4">🤖 VAYUDOOT</button>
+  </div>
   <div class="h-14 bg-black/90 border-b border-cyan-500 flex items-center px-6 z-50">
     <div class="flex items-center gap-3">
       <!-- Real AetherX Logo -->
       <img src="image.png" 
            class="w-9 h-9 rounded-2xl" alt="AetherX Logo">
-      <h1 class="text-3xl font-bold glow tracking-widest">AetherX - VAYUDOOT AI</h1>
+      <h1 class="text-lg sm:text-xl lg:text-3xl font-bold glow tracking-widest">AetherX - VAYUDOOT AI</h1>
     </div>
-    <div class="ml-auto flex items-center gap-8 text-sm font-medium">
+    <div class="ml-auto hidden sm:flex items-center gap-4 text-xs lg:text-sm font-medium">
       <div>MISSION ELAPSED: <span id="mission-time" class="font-mono text-green-400">00:00:00</span></div>
       <div>DISTANCE TO MARS: <span id="distance" class="font-mono text-amber-400">187,420,000 km</span></div>
       <div>ROCKET SPEED: <span id="speed" class="font-mono text-white">7.8 km/s</span></div>
-      <button onclick="openSimulationPanel()" class="bg-cyan-500 hover:bg-cyan-400 text-black px-5 py-1.5 rounded-3xl text-sm font-semibold flex items-center gap-2">
+      <button onclick="openSimulationPanel()" class="bg-cyan-500 hover:bg-cyan-400 text-black px-5 py-1.5 rounded-3xl text-xs sm:text-sm font-semibold flex items-center gap-2">
         <i class="fas fa-sliders-h"></i> SIMULATION CONTROLS
       </button>
     </div>
   </div>
 
-  <div class="flex flex-1 overflow-hidden">
+  <div class="flex flex-col lg:flex-row flex-1 overflow-hidden">
     <!-- LEFT 60% - 3D SIMULATION (Now Realistic) -->
-    <div class="flex-[6] relative" id="three-container">
+    <div class="w-full lg:w-3/5 h-[250px] sm:h-[350px] lg:h-auto relative" id="three-container">
       <canvas id="canvas"></canvas>
       
-      <div class="absolute top-6 left-6 bg-black/70 backdrop-blur-md border border-cyan-400/50 rounded-3xl p-6 max-w-xs">
-        <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-rocket"></i> Gaganyaan-3 to Mars</h3>
-        <div class="space-y-3 text-sm">
+      <div class="absolute top-4 left-4 right-4 sm:right-auto sm:max-w-xs 
+          bg-black/70 backdrop-blur-md border border-cyan-400/50 
+          rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-xs sm:text-sm">
+        <h3 class="text-sm sm:text-lg font-bold mb-3 sm:mb-4 flex items-center gap-2"><i class="fas fa-rocket"></i> Gaganyaan-3 to Mars</h3>
+        <div class="space-y-2 sm:space-y-3 text-xs sm:text-sm">
           <div class="flex justify-between"><span>LAUNCHED FROM</span><span class="text-green-400">Earth • Sriharikota</span></div>
           <div class="flex justify-between"><span>CURRENT PHASE</span><span class="text-amber-400">Low Earth Orbit → Trans-Mars Injection</span></div>
           <div class="flex justify-between"><span>VAYUDOOT STATUS</span><span class="text-green-400">FULL AUTONOMY • 99.8%</span></div>
@@ -59,16 +197,16 @@
     </div>
 
     <!-- RIGHT 40% - CONTROL CENTER -->
-    <div class="flex-[4] bg-black/90 border-l border-cyan-500 flex flex-col h-full">
+    <div class="w-full lg:w-2/5 bg-black/90 border-t lg:border-t-0 lg:border-l border-cyan-500 flex flex-col overflow-hidden">
       <!-- Tab Buttons -->
-      <div class="flex border-b border-cyan-500">
-        <button onclick="switchTab(0)" id="tab-0" class="tab-active flex-1 py-4 text-sm font-semibold flex items-center justify-center gap-2">
+      <div class="hidden lg:flex border-b border-cyan-500">
+        <button onclick="switchTab(0)" id="tab-0" class="tab-active flex-1 py-4 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2">
           <i class="fas fa-satellite-dish"></i> MAIN MONITORING
         </button>
-        <button onclick="switchTab(1)" id="tab-1" class="flex-1 py-4 text-sm font-semibold flex items-center justify-center gap-2">
+        <button onclick="switchTab(1)" id="tab-1" class="flex-1 py-4 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2">
           <i class="fas fa-users"></i> CREW DATA
         </button>
-        <button onclick="switchTab(2)" id="tab-2" class="flex-1 py-4 text-sm font-semibold flex items-center justify-center gap-2">
+        <button onclick="switchTab(2)" id="tab-2" class="flex-1 py-4 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2">
           <i class="fas fa-comment-dots"></i> TALK TO VAYUDOOT
         </button>
       </div>
@@ -101,7 +239,7 @@
           </div>
 
           <div class="mt-8">
-            <h3 class="text-cyan-400 text-sm mb-3">LAST RECORDS • <span id="last-updated-main" class="font-mono"></span></h3>
+            <h3 class="text-cyan-400 text-xs sm:text-sm mb-3">LAST RECORDS • <span id="last-updated-main" class="font-mono"></span></h3>
             <div id="last-checks" class="space-y-4"></div>
           </div>
         </div>
@@ -119,7 +257,7 @@
             <button onclick="hideCrewDetail()" class="text-xs text-cyan-400">CLOSE</button>
           </div>
           <img id="detail-photo" src="" class="w-28 h-28 rounded-2xl object-cover mb-4 mx-auto">
-          <div id="detail-info" class="text-sm space-y-3"></div>
+          <div id="detail-info" class="text-xs sm:text-sm space-y-3"></div>
           <div onclick="updateCrewData()" class="mt-6 cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-bold py-3 rounded-2xl text-center">UPDATE CREW DATA NOW</div>
         </div>
       </div>
@@ -131,12 +269,12 @@
           <p class="text-xs text-cyan-400">Direct Neural Link • Active</p>
         </div>
         
-        <div id="chat-window" class="flex-1 p-6 overflow-y-auto space-y-4 font-light custom-scrollbar"></div>
+        <div id="chat-window" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 sm:space-y-4"></div>
         
         <div class="p-4 border-t border-cyan-500 flex-shrink-0 bg-black/50">
           <div class="flex gap-2">
             <input id="chat-input" type="text" placeholder="Transmit command..." 
-                  class="flex-1 bg-black/60 border border-cyan-400 rounded-3xl px-6 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-cyan-400">
+                  class="flex-1 bg-black/60 border border-cyan-400 rounded-2xl px-4 py-3 text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-cyan-400">
             <button onclick="sendMessage()" class="bg-cyan-500 hover:bg-cyan-400 text-black w-12 h-12 rounded-3xl flex items-center justify-center transition-transform active:scale-95">
               <i class="fas fa-paper-plane"></i>
             </button>
@@ -150,7 +288,7 @@
   <div id="sim-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[9999]">
     <div class="modal bg-[#0a0a1f] border border-cyan-400 rounded-3xl w-[580px] max-h-[92vh] overflow-hidden shadow-2xl">
       <div class="p-6 border-b border-cyan-400 flex items-center justify-between">
-        <h2 class="text-2xl font-bold">Simulation Control Panel</h2>
+        <h2 class="text-lg sm:text-xl lg:text-2xl font-bold">Simulation Control Panel</h2>
         <button onclick="closeSimulationPanel()" class="text-3xl text-cyan-400 leading-none">×</button>
       </div>
       
@@ -160,7 +298,7 @@
           <h3 class="text-cyan-400 mb-4">Core Temperature Control</h3>
           <input type="range" id="temp-slider" min="10" max="40" value="23" step="0.1" 
                  class="w-full accent-cyan-400" oninput="liveTempUpdate()">
-          <div class="flex justify-between text-sm mt-1">
+          <div class="flex justify-between text-xs sm:text-sm mt-1">
             <span>10°C</span>
             <span id="live-temp-display" class="font-mono text-lg">23.0°C</span>
             <span>40°C</span>
@@ -173,7 +311,7 @@
           <div class="space-y-6">
             <div class="flex justify-between items-center">
               <span>Thruster Valves</span>
-              <select id="sys-thruster" onchange="setSystemStatus(0, this.value)" class="bg-black border border-cyan-400 rounded-2xl px-4 py-2 text-sm">
+              <select id="sys-thruster" onchange="setSystemStatus(0, this.value)" class="bg-black border border-cyan-400 rounded-2xl px-4 py-2 text-xs sm:text-sm">
                 <option value="OK">OK</option>
                 <option value="Little">Little Damage</option>
                 <option value="Extreme">Extreme Damage</option>
@@ -181,7 +319,7 @@
             </div>
             <div class="flex justify-between items-center">
               <span>Life Support Software</span>
-              <select id="sys-life" onchange="setSystemStatus(1, this.value)" class="bg-black border border-cyan-400 rounded-2xl px-4 py-2 text-sm">
+              <select id="sys-life" onchange="setSystemStatus(1, this.value)" class="bg-black border border-cyan-400 rounded-2xl px-4 py-2 text-xs sm:text-sm">
                 <option value="OK">OK</option>
                 <option value="Little">Little Damage</option>
                 <option value="Extreme">Extreme Damage</option>
@@ -189,7 +327,7 @@
             </div>
             <div class="flex justify-between items-center">
               <span>Power Supply Unit</span>
-              <select id="sys-power" onchange="setSystemStatus(2, this.value)" class="bg-black border border-cyan-400 rounded-2xl px-4 py-2 text-sm">
+              <select id="sys-power" onchange="setSystemStatus(2, this.value)" class="bg-black border border-cyan-400 rounded-2xl px-4 py-2 text-xs sm:text-sm">
                 <option value="OK">OK</option>
                 <option value="Little">Little Damage</option>
                 <option value="Extreme">Extreme Damage</option>
@@ -204,7 +342,7 @@
           <div class="space-y-4 bg-black/40 p-4 rounded-2xl border border-white/5">
             <div class="flex flex-col gap-2">
               <label class="text-[10px] text-gray-500">SELECT MEMBER</label>
-              <select id="sc-crew-select" class="bg-black border border-cyan-400/50 rounded-xl px-3 py-2 text-sm text-cyan-50 focus:outline-none">
+              <select id="sc-crew-select" class="bg-black border border-cyan-400/50 rounded-xl px-3 py-2 text-xs sm:text-sm text-cyan-50 focus:outline-none">
                 <option value="0">Capt. Vikram Singh</option>
                 <option value="1">Dr. Meera Patel</option>
                 <option value="2">Lt. Rohan Desai</option>
@@ -214,7 +352,7 @@
 
             <div class="flex flex-col gap-2">
               <label class="text-[10px] text-gray-500">SET STATUS</label>
-              <select id="sc-crew-status" class="bg-black border border-cyan-400/50 rounded-xl px-3 py-2 text-sm text-cyan-50 focus:outline-none">
+              <select id="sc-crew-status" class="bg-black border border-cyan-400/50 rounded-xl px-3 py-2 text-xs sm:text-sm text-cyan-50 focus:outline-none">
                 <option value="Nominal">Nominal</option>
                 <option value="Stressed">Stressed</option>
                 <option value="Injured">Injured</option>
@@ -284,6 +422,10 @@
       mars = new THREE.Mesh(marsGeo, marsMat);
       mars.position.set(28, 10, -15);
       scene.add(mars);
+      
+      if (window.innerWidth < 768) {
+        renderer.setPixelRatio(1); // reduce load
+      }
 
       // === REALISTIC ROCKET ===
       const rocketGroup = new THREE.Group();
@@ -754,7 +896,7 @@
             <div class="text-xs text-gray-400">${member.role}</div>
           </div>
           <div class="text-right">
-            <div class="${statusColor} text-sm font-bold">${member.status}</div>
+            <div class="${statusColor} text-xs sm:text-sm font-bold">${member.status}</div>
             <div class="text-xs font-mono">${member.hr} BPM</div>
           </div>
         `;
@@ -779,7 +921,7 @@
           <div><span class="text-gray-400">Heart Rate:</span> <span class="font-mono text-cyan-400">${member.hr} BPM</span></div>
           <div class="p-3 bg-cyan-900/20 border border-cyan-400/30 rounded-xl">
             <div class="text-[10px] text-cyan-400 uppercase font-bold mb-1">VAYUDOOT Recommendation</div>
-            <div class="text-sm italic">"${protocol.text}"</div>
+            <div class="text-xs sm:text-sm italic">"${protocol.text}"</div>
           </div>
         </div>
       `;
@@ -841,7 +983,7 @@
       chat.appendChild(msg);
       
       // Smooth scroll to bottom
-      chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+      chat.scrollTop = chat.scrollHeight;
     }
 
     function sendMessage() {
@@ -874,11 +1016,52 @@
           return;
         }
 
-        // Default Responses
+        // Enhanced Default Responses
         if(text.includes("status")) {
-            addChatMessage("Monitoring Gaganyaan-3. Efficiency at 99.8%. Systems Nominal.");
+            addChatMessage("🛰️ Monitoring Gaganyaan-3. All systems operational. Efficiency at 99.8%. Crew vitals stable.");
+        } else if(text.includes("hello") || text.includes("hi") || text.includes("hey")) {
+            addChatMessage("👋 Greetings, crew member. VAYUDOOT AI is online and ready to assist with your mission to Mars.");
+        } else if(text.includes("crew") || text.includes("team")) {
+            addChatMessage("👨‍🚀 All 4 crew members are currently stable. Capt. Vikram Singh commanding, Dr. Meera Patel monitoring medical systems, Lt. Rohan Desai managing propulsion, and Dr. Anika Rao analyzing Mars sample data.");
+        } else if(text.includes("mars") || text.includes("destination")) {
+            addChatMessage("🔴 Mars destination confirmed. Current distance: " + Math.round(distanceToMars).toLocaleString() + " km. ETA: 7 months, 12 days at current velocity.");
+        } else if(text.includes("oxygen") || text.includes("o2") || text.includes("air")) {
+            addChatMessage("💨 O₂ levels at 98.7%. Life support systems functioning optimally. Air recycling efficiency at 99.2%.");
+        } else if(text.includes("temperature") || text.includes("temp") || text.includes("heat")) {
+            addChatMessage("🌡️ Core temperature stable at " + temp.toFixed(1) + "°C. Thermal regulation systems operating within normal parameters.");
+        } else if(text.includes("fuel") || text.includes("propellant") || text.includes("power")) {
+            addChatMessage("⚡ Fuel reserves at 67%. Solar panels operating at 94% efficiency. Battery backup systems fully charged.");
+        } else if(text.includes("communication") || text.includes("comms") || text.includes("contact")) {
+            addChatMessage("📡 Communication link with Earth established. Signal delay: 14 minutes 28 seconds. All channels operational.");
+        } else if(text.includes("emergency") || text.includes("danger") || text.includes("alert")) {
+            addChatMessage("⚠️ No active emergencies. All safety systems on standby. Emergency protocols ready if needed.");
+        } else if(text.includes("sleep") || text.includes("rest") || text.includes("schedule")) {
+            addChatMessage("😴 Crew sleep cycle optimized. 2 members currently on rest rotation. Next shift change in 3 hours 45 minutes.");
+        } else if(text.includes("food") || text.includes("water") || text.includes("supplies")) {
+            addChatMessage("🍽️ Food supplies sufficient for 482 days. Water recycling at 98% efficiency. Nutritional supplements available.");
+        } else if(text.includes("exercise") || text.includes("fitness") || text.includes("health")) {
+            addChatMessage("🏃‍♂️ Daily exercise regimen completed. Crew fitness levels at 92% of baseline. Muscle mass retention optimal.");
+        } else if(text.includes("research") || text.includes("experiment") || text.includes("science")) {
+            addChatMessage("🔬 12 experiments currently active. 3 completed successfully. Mars atmosphere sample analysis in progress.");
+        } else if(text.includes("navigation") || text.includes("course") || text.includes("trajectory")) {
+            addChatMessage("🧭 Course correction planned in 6 hours. Trajectory deviation: 0.002%. All navigation systems calibrated.");
+        } else if(text.includes("weather") || text.includes("solar") || text.includes("radiation")) {
+            addChatMessage("☀️ Solar activity moderate. Radiation shielding at 100% effectiveness. No solar flares detected in 72-hour forecast.");
+        } else if(text.includes("help") || text.includes("commands") || text.includes("assist")) {
+            addChatMessage("ℹ️ Available commands: status, crew, mars, oxygen, temperature, fuel, communication, emergency, sleep, food, exercise, research, navigation, weather. Type any keyword for detailed information.");
+        } else if(text.includes("who are you") || text.includes("what are you") || text.includes("vayudoot")) {
+            addChatMessage("🤖 I am VAYUDOOT AI, your advanced mission control system. I monitor all ship systems, crew health, and mission parameters to ensure safe passage to Mars.");
+        } else if(text.includes("mission") || text.includes("objective") || text.includes("goal")) {
+            addChatMessage("🎯 Mission Objective: Establish first human outpost on Mars. Deploy habitat modules, conduct geological surveys, and test terraforming technologies.");
         } else {
-            addChatMessage("Instruction logged in Mission Chronology.");
+            const responses = [
+                "📝 Instruction logged in Mission Chronology.",
+                "✅ Command acknowledged. Processing request.",
+                "🔄 Updating mission parameters based on your input.",
+                "📊 Data recorded in ship's main computer.",
+                "🎯 Your command has been queued for execution."
+            ];
+            addChatMessage(responses[Math.floor(Math.random() * responses.length)]);
         }
       }, 800);
     }
@@ -890,6 +1073,13 @@
       document.getElementById('tab-'+tabIndex).classList.add('tab-active');
     }
 
+    window.addEventListener('resize', () => {
+      const container = document.getElementById('three-container');
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+
     function startMissionTimer() {
       let seconds = 0;
       setInterval(() => {
@@ -899,6 +1089,16 @@
         const s = String(seconds%60).padStart(2,'0');
         document.getElementById('mission-time').textContent = `${h}:${m}:${s}`;
       }, 1000);
+    }
+
+    function toggleMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    function switchMobileTab(index) {
+      switchTab(index);
+      document.getElementById('mobile-menu').classList.add('hidden');
     }
 
     function init() {
